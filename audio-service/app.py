@@ -141,8 +141,27 @@ def analyze():
         # STEP 3: NLP ANALYSIS
         # ============================================
         print("🧠 Step 3: Running NLP analysis...")
-        # Get list of stuttered words for NLP analysis
-        stuttered_words = [r["word"] for r in metrics.get("repetitions", [])]
+        # Collect stuttered words from ALL disfluency types, not just repetitions.
+        # This ensures that users who primarily prolong or block still get
+        # accurate weak-sound identification and targeted practice exercises.
+        stutter_timeline = metrics.get("detectedStutters", [])
+        stuttered_words_set = set()
+
+        # Words from word-level repetitions
+        for r in metrics.get("repetitions", []):
+            if r.get("word"):
+                stuttered_words_set.add(r["word"].lower().strip(".,!?;:'\""))
+
+        # Words from prolongations and blocks in the unified timeline
+        for event in stutter_timeline:
+            if event.get("type") in ("prolongation", "block", "repetition"):
+                word = event.get("word", "")
+                if word and not word.startswith("["):  # skip placeholder labels
+                    stuttered_words_set.add(word.lower().strip(".,!?;:'\""))
+
+        stuttered_words = list(stuttered_words_set)
+        print(f"   Stuttered words (all types): {stuttered_words}")
+
         nlp_results = analyze_transcript(transcript_data["text"], stuttered_words)
         print(f"   Vocabulary Level: {nlp_results['vocabularyLevel']}")
         print(f"   Dominant Stutter Type: {nlp_results['dominantStutterType']}")

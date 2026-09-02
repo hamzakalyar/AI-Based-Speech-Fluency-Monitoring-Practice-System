@@ -133,49 +133,69 @@ def detect_repetitions(words):
     }
 
 
-def detect_pauses(audio_path, min_pause_duration=0.3, silence_threshold=25):
+def detect_pauses(audio_path, min_pause_duration=0.5, silence_threshold=25, whisper_words=None):
     """
     Detect abnormally long pauses/silences in the audio.
-    
+
     Normal speech has ~200-300ms pauses between phrases (breathing).
-    Pauses > 300ms mid-sentence often indicate a BLOCK (type of stutter).
-    
+    Pauses > 500ms mid-sentence often indicate a BLOCK (type of stutter).
+    Pauses immediately following sentence-ending punctuation (period, question
+    mark) are EXCLUDED — those are natural reading pauses, not disfluencies.
+
     Uses Librosa to find silent intervals in the audio signal.
-    Threshold lowered to 300ms and 25dB to catch stuttering blocks.
+    Threshold raised to 500ms and 25dB to avoid penalizing normal breathing.
     """
     try:
         # Load audio file
         audio, sr = librosa.load(audio_path, sr=16000)
-        
+
         # Find non-silent intervals
         # top_db=25 means anything 25dB below the peak is "silence" (more sensitive)
         intervals = librosa.effects.split(audio, top_db=silence_threshold)
-        
+
         pauses = []
-        
+
         if len(intervals) < 2:
             return {"count": 0, "total_duration_ms": 0, "pauses": []}
-        
+
+        # Build a set of timestamps (in seconds) that immediately follow
+        # sentence-ending words — those pauses are natural reading breaks.
+        sentence_end_times = set()
+        if whisper_words:
+            for w in whisper_words:
+                word_text = w.get("word", "").strip()
+                if word_text and word_text[-1] in ('.', '?', '!'):
+                    # Mark 1.0s window after this word as exempt
+                    sentence_end_times.add(round(w["end"], 2))
+
         for i in range(1, len(intervals)):
             gap_start_sample = intervals[i - 1][1]
             gap_end_sample = intervals[i][0]
             gap_duration = (gap_end_sample - gap_start_sample) / sr
-            
+
             if gap_duration >= min_pause_duration:
                 position = gap_start_sample / sr
+
+                # Skip if this pause starts within 1.0s after a sentence-end word
+                is_sentence_pause = any(
+                    abs(position - t) <= 1.0 for t in sentence_end_times
+                )
+                if is_sentence_pause:
+                    continue
+
                 pauses.append({
                     "position": round(position, 2),
                     "duration_ms": round(gap_duration * 1000)
                 })
-        
+
         total_duration = sum(p["duration_ms"] for p in pauses)
-        
+
         return {
             "count": len(pauses),
             "total_duration_ms": total_duration,
             "pauses": pauses
         }
-    
+
     except Exception as e:
         print(f"❌ Pause detection error: {e}")
         return {"count": 0, "total_duration_ms": 0, "pauses": []}
@@ -490,30 +510,45 @@ def merge_transcript_and_stutters(whisper_words, stutters):
 def calculate_fluency_score(repetition_data, pause_data, filler_data, speech_rate_data, audio_repetition_data=None, advanced_stutters=None, prolongation_data=None):
     """
     Calculate a composite fluency score from 0 to 100.
-    
+
     Penalty table:
       Word repetitions  : -8 per event
       Audio repetitions : -6 per event
       Prolongations     : -6 (moderate) / -8 (high) per event
-      Pauses            : -5 per pause
+      Pauses            : -5 per pause  (only pauses NOT already covered by a Stutter-Solver block)
       Fillers           : -3 per filler
       Fragmentation     : -5 or -10 depending on ratio
       WPM penalty       : scaled
+
+    FIX: When Stutter-Solver detects blocks, those silences are already
+    accounted for in the advanced_blocks penalty. We de-duplicate against
+    pause_data so the same silence is not counted twice.
     """
     score = 100.0
-    
+
+    # Collect timestamps of Stutter-Solver block events (±0.5s tolerance)
+    block_timestamps = []
+    if advanced_stutters:
+        for s in advanced_stutters:
+            if s["type"] == "block":
+                block_timestamps.append(s["start"])
+
+    # De-duplicate pause_data against block_timestamps
+    def _pause_is_covered_by_block(pause_pos):
+        return any(abs(pause_pos - bt) <= 0.5 for bt in block_timestamps)
+
     if advanced_stutters:
         advanced_reps = len([s for s in advanced_stutters if s["type"] == "repetition"])
         advanced_blocks = len([s for s in advanced_stutters if s["type"] == "block"])
         advanced_prolong = len([s for s in advanced_stutters if s["type"] == "prolongation"])
-        
+
         score -= advanced_reps * 8
         score -= advanced_blocks * 10
         score -= advanced_prolong * 6
     else:
         # Penalty for word-level repetitions (-8 per event)
         score -= repetition_data["count"] * 8
-        
+
         # Penalty for audio-level repetitions (-6 per event)
         if audio_repetition_data:
             score -= audio_repetition_data.get("count", 0) * 6
@@ -522,31 +557,41 @@ def calculate_fluency_score(repetition_data, pause_data, filler_data, speech_rat
                 score -= 10
             elif frag_ratio > 0.25:
                 score -= 5
-    
-    # Penalty for prolonged phonemes ("prrrr", "bisssss")
+
+    # Penalty for prolonged phonemes — skip events already captured by Stutter-Solver
     if prolongation_data:
+        solver_prolong_times = [
+            s["start"] for s in (advanced_stutters or []) if s["type"] == "prolongation"
+        ]
         for p in prolongation_data.get("prolongations", []):
+            already_counted = any(abs(p["position"] - t) <= 0.5 for t in solver_prolong_times)
+            if already_counted:
+                continue
             if p["severity"] == "high":
                 score -= 8
             else:
                 score -= 6
-    
-    # Penalty for abnormal pauses (-5 per pause)
-    score -= pause_data["count"] * 5
-    
-    if pause_data.get("total_duration_ms", 0) > 3000:
+
+    # Penalty for abnormal pauses (-5 per pause, skipping those already penalized as blocks)
+    uncovered_pauses = [
+        p for p in pause_data["pauses"]
+        if not _pause_is_covered_by_block(p["position"])
+    ]
+    score -= len(uncovered_pauses) * 5
+
+    if sum(p["duration_ms"] for p in uncovered_pauses) > 3000:
         score -= 5
-    
+
     # Penalty for fillers (-3 per filler)
     score -= filler_data["count"] * 3
-    
+
     # Penalty for abnormal speech rate
     wpm = speech_rate_data["wpm"]
     if wpm > 0 and wpm < 100:
         score -= (100 - wpm) / 5
     elif wpm > 180:
         score -= (wpm - 180) / 10
-    
+
     # Clamp between 0 and 100
     score = max(0, min(100, score))
     
@@ -572,7 +617,7 @@ def analyze_audio(audio_path, transcript_data):
     speech_rate_data = calculate_speech_rate(words, duration)
     
     # Run audio-based detectors (from raw audio signal)
-    pause_data = detect_pauses(audio_path)
+    pause_data = detect_pauses(audio_path, whisper_words=words)
     audio_rep_data = detect_audio_level_repetitions(audio_path)
     prolongation_data = detect_prolongations(audio_path)  # NEW: catch prrrr / bisssss
     

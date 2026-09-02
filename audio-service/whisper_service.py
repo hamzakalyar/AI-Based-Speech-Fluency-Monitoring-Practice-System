@@ -32,6 +32,11 @@ HOW IT WORKS:
 import whisper
 import os
 import json
+try:
+    import librosa
+    _LIBROSA_AVAILABLE = True
+except ImportError:
+    _LIBROSA_AVAILABLE = False
 
 # Global model variable — loaded once, reused for all requests
 _model = None
@@ -131,21 +136,36 @@ def transcribe_audio(audio_path):
             
     final_text = " ".join(valid_text_segments).strip()
     
-    # Post-processing: Filter out common Whisper hallucinations for short audio
-    hallucinations = ["thank you", "subscribe", "amara.org", "i'm sorry", "thanks for watching", "bye"]
-    if len(final_text.split()) < 8:
-        lower_text = final_text.lower()
-        if any(h in lower_text for h in hallucinations):
+    # Post-processing: Filter out common Whisper hallucinations for short audio.
+    # IMPORTANT: Only match if the ENTIRE transcript is a known hallucination phrase,
+    # not if it merely contains one of those words inside legitimate speech.
+    # e.g. "Thank you" alone = hallucination  |  "Thank you for attending" = real speech.
+    EXACT_HALLUCINATIONS = {
+        "thank you", "subscribe", "amara.org", "thanks for watching",
+        "bye", "bye bye", "thank you.", "thanks."
+    }
+    if len(final_text.split()) < 5:
+        if final_text.lower().strip(".,!?") in EXACT_HALLUCINATIONS:
             final_text = ""
             words = []
-    
-    # Calculate total audio duration
+
+    # Calculate total audio duration from the actual file, not from word timestamps.
+    # words[-1]["end"] only measures speech time — silence at the end is excluded,
+    # which inflates WPM for recordings where the user pauses before stopping.
     duration = 0.0
-    if words:
-        duration = words[-1]["end"]
-    elif result.get("segments"):
-        duration = result["segments"][-1]["end"]
-    
+    if _LIBROSA_AVAILABLE:
+        try:
+            duration = librosa.get_duration(path=audio_path)
+            duration = round(duration, 2)
+        except Exception:
+            pass  # fall back to word-end timestamp below
+
+    if duration <= 0:
+        if words:
+            duration = words[-1]["end"]
+        elif result.get("segments"):
+            duration = result["segments"][-1]["end"]
+
     return {
         "text": final_text,
         "words": words,

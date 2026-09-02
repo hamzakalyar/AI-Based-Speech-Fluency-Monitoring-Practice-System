@@ -201,7 +201,16 @@ def predict_stutters(audio_path, transcript_text):
             
         stutters = []
         labels = ["repetition", "block", "missing", "replace", "prolongation"]
-        
+
+        # Get actual audio duration for clamping.
+        # The hard-coded frame math (start_norm * 1024 * 256 / 22050) assumes the
+        # attention matrix is exactly 1024 frames, which is only true for ~12s clips.
+        # For shorter recordings, the matrix is smaller and timestamps overshoot.
+        try:
+            actual_duration = librosa.get_duration(path=audio_path)
+        except Exception:
+            actual_duration = float("inf")
+
         for i in range(max_region):
             exists_pred = torch.clamp(output[0, i, 2], 0, 1)
             if exists_pred > 0.5:
@@ -209,14 +218,20 @@ def predict_stutters(audio_path, transcript_text):
                 type_idx = torch.argmax(disf_type_pred).item()
                 start_norm = output[0, i, 0].item()
                 end_norm = output[0, i, 1].item()
-                
+
                 start_sec = (start_norm * 1024 * 256) / 22050
                 end_sec = (end_norm * 1024 * 256) / 22050
-                
+
+                # Clamp to valid audio range and discard out-of-bounds events
+                start_sec = round(max(0.0, min(start_sec, actual_duration)), 2)
+                end_sec = round(max(start_sec, min(end_sec, actual_duration)), 2)
+                if start_sec >= actual_duration:
+                    continue
+
                 stutters.append({
                     "type": labels[type_idx],
-                    "start": round(start_sec, 2),
-                    "end": round(end_sec, 2),
+                    "start": start_sec,
+                    "end": end_sec,
                     "confidence": round(exists_pred.item(), 2)
                 })
                 
