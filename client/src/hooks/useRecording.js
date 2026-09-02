@@ -31,7 +31,20 @@ export const useRecording = () => {
 
       let stream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Request high-quality audio for speech analysis:
+        // - 48kHz sample rate (Whisper processes at 16kHz; browser downsamples cleanly)
+        // - Mono channel (speech analysis does not benefit from stereo)
+        // - Echo cancellation + noise suppression + auto gain for clean input
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: 1,
+            sampleRate: { ideal: 48000, min: 16000 },
+            sampleSize: 16,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          }
+        });
       } catch (micError) {
         console.error('Microphone access denied or unavailable:', micError);
         setAnalysisError(
@@ -51,23 +64,37 @@ export const useRecording = () => {
         audioContextRef.current = audioCtx;
         const source = audioCtx.createMediaStreamSource(stream);
         const analyserNode = audioCtx.createAnalyser();
-        analyserNode.fftSize = 256;
-        source.connect(analyserNode);
+        analyserNode.fftSize = 1024;   // Higher resolution waveform
+        analyserNode.smoothingTimeConstant = 0.8;
+
+        // DynamicsCompressor normalises volume so quiet speakers still register
+        const compressor = audioCtx.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
+        compressor.knee.setValueAtTime(30, audioCtx.currentTime);
+        compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+        compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
+        compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+
+        source.connect(compressor);
+        compressor.connect(analyserNode);
         setAnalyser(analyserNode);
       } catch (ctxError) {
         // Waveform visualisation won't work but recording can still proceed
         console.warn('AudioContext failed — waveform disabled:', ctxError);
       }
 
-      // Detect best supported MIME type at runtime
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-        ? 'audio/webm'
-        : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
-        ? 'audio/ogg;codecs=opus'
-        : '';
-      const recorderOptions = mimeType ? { mimeType } : {};
+      // Detect best supported MIME type at runtime, prefer Opus for high-quality speech
+      const preferredTypes = [
+        'audio/webm;codecs=opus',
+        'audio/ogg;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+        '',
+      ];
+      const mimeType = preferredTypes.find(t => t === '' || MediaRecorder.isTypeSupported(t));
+      const recorderOptions = mimeType
+        ? { mimeType, audioBitsPerSecond: 128000 }
+        : { audioBitsPerSecond: 128000 };
       const recorder = new MediaRecorder(stream, recorderOptions);
       mediaRecorderRef.current = recorder;
 
@@ -77,10 +104,10 @@ export const useRecording = () => {
 
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
-        if (blob.size < 1000) {
-          // Blob is suspiciously small — likely empty/corrupt recording
+        if (blob.size < 4000) {
+          // Blob is suspiciously small — likely empty/corrupt recording (< ~0.5s of opus audio)
           console.warn('Recorded blob is too small:', blob.size, 'bytes');
-          setAnalysisError('Recording was too short or captured no audio. Please try again and speak clearly.');
+          setAnalysisError('Recording was too short or captured no audio. Please try again — speak clearly for at least 3 seconds.');
           setStatus('error');
           return;
         }
