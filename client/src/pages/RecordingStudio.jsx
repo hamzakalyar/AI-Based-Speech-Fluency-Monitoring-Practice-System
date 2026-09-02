@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import {
    Mic, Square, Pause, Play, RotateCcw,
    Waves, Ruler, Sparkles, Trash2,
