@@ -440,17 +440,25 @@ module.exports = { sessionRouter: router };
  */
 const assessmentRouter = express.Router();
 
+// Load built-in assessment passages as resilient fallback
+let builtinPassages = { passages: [], passagesMap: {} };
+try {
+  builtinPassages = require('../data/passages.json');
+} catch (e) {
+  console.warn('⚠️  Built-in passages.json not loaded:', e.message);
+}
+
 // GET /api/assessment-passages — List all passages
 assessmentRouter.get('/', async (req, res) => {
   try {
-    const response = await axios.get(`${PYTHON_SERVICE_URL}/assessment-passages`, { timeout: 10000 });
-    res.json(response.data);
-  } catch (error) {
-    if (error.code === 'ECONNREFUSED') {
-      return res.status(503).json({ message: 'Python service not available' });
+    const response = await axios.get(`${PYTHON_SERVICE_URL}/assessment-passages`, { timeout: 3000 });
+    if (response.data && response.data.passages && response.data.passages.length > 0) {
+      return res.json(response.data);
     }
-    res.status(500).json({ message: 'Failed to fetch passages', error: error.message });
+  } catch (error) {
+    // Python service is down or cold-starting — fall back to built-in clinical passages
   }
+  return res.json({ passages: builtinPassages.passages || [] });
 });
 
 // GET /api/assessment-passages/:id — Get specific passage
@@ -460,14 +468,20 @@ assessmentRouter.get('/:id', async (req, res) => {
     if (req.query) {
       Object.keys(req.query).forEach(key => url.searchParams.append(key, req.query[key]));
     }
-    const response = await axios.get(url.toString(), { timeout: 10000 });
-    res.json(response.data);
-  } catch (error) {
-    if (error.response?.status === 404) {
-      return res.status(404).json({ message: 'Passage not found' });
+    const response = await axios.get(url.toString(), { timeout: 3000 });
+    if (response.data) {
+      return res.json(response.data);
     }
-    res.status(500).json({ message: 'Failed to fetch passage', error: error.message });
+  } catch (error) {
+    // Fall back to built-in passage data
   }
+
+  const pid = req.params.id;
+  const passage = builtinPassages.passagesMap?.[pid] || builtinPassages.passages?.find(p => p.id === pid);
+  if (passage) {
+    return res.json({ passage });
+  }
+  return res.status(404).json({ message: 'Passage not found' });
 });
 
 module.exports.assessmentRouter = assessmentRouter;

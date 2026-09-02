@@ -17,26 +17,30 @@ import { cn } from '../utils/cn';
 import WaveformCanvas from '../components/features/Recording/WaveformCanvas';
 
 const ProgressCheckCard = ({ targetSound, onComplete }) => {
+  const passageMap = {
+    'S': 'fricatives_s', 'SH': 'fricatives_s',
+    'TH': 'fricatives_th', 'DH': 'fricatives_th',
+    'B': 'plosives_bp', 'P': 'plosives_bp',
+    'T': 'plosives_td', 'D': 'plosives_td',
+    'K': 'plosives_kg', 'G': 'plosives_kg',
+    'F': 'fricatives_f', 'V': 'fricatives_f',
+    'R': 'liquids_rl', 'L': 'liquids_rl',
+    'STR': 'clusters', 'SP': 'clusters'
+  };
+  const initialPassageId = passageMap[targetSound?.toUpperCase()] || 'screening';
   const [passage, setPassage] = useState(null);
   const [comparison, setComparison] = useState(null);
   const { status, duration, startRecording, stopRecording, startAnalysis, analysisResults, resetRecording } = useRecording();
 
   useEffect(() => {
-    const passageMap = {
-      'S': 'fricatives_s', 'SH': 'fricatives_s',
-      'TH': 'fricatives_th', 'DH': 'fricatives_th',
-      'B': 'plosives_bp', 'P': 'plosives_bp',
-      'T': 'plosives_td', 'D': 'plosives_td',
-      'K': 'plosives_kg', 'G': 'plosives_kg',
-      'F': 'fricatives_f', 'V': 'fricatives_f',
-      'R': 'liquids_rl', 'L': 'liquids_rl',
-      'STR': 'clusters', 'SP': 'clusters'
-    };
-    
     const passageId = passageMap[targetSound?.toUpperCase()] || 'screening';
     sessionsService.getPassageById(passageId)
-      .then(res => setPassage(res?.data?.passage))
-      .catch(err => console.error("Failed to load verification passage", err));
+      .then(res => {
+        if (res?.data?.passage) setPassage(res.data.passage);
+      })
+      .catch(err => {
+        console.error("Failed to load verification passage", err);
+      });
   }, [targetSound]);
 
   useEffect(() => {

@@ -1,0 +1,984 @@
+{
+  "passages": [
+    {
+      "id": "screening",
+      "title": "General Screening Passage",
+      "description": "A comprehensive passage that tests all major stutter-prone sounds. Read this first to identify your specific weak areas.",
+      "difficulty": "medium",
+      "estimatedDuration": 45,
+      "targetSounds": [
+        "B",
+        "P",
+        "T",
+        "D",
+        "K",
+        "G",
+        "S",
+        "TH",
+        "F",
+        "R",
+        "L",
+        "SH",
+        "STR"
+      ],
+      "wordCount": 80,
+      "text": "Peter bought a big blue basket at the store. The sturdy basket seemed perfect for collecting strawberries. He thought about picking three bushels but decided to start with just one. Growing berries requires patience and strength. The thorny branches scratch and pull at your skin. Still, Peter felt grateful for the fresh fruit. Back home, he carefully placed the bright red berries in a glass bowl. His daughter Sophie clapped and smiled at the beautiful display. Together they decided to bake a delicious strawberry cake for the family gathering."
+    },
+    {
+      "id": "plosives_bp",
+      "title": "Plosives: B and P Sounds",
+      "description": "Tests bilabial plosives \u2014 the most common trigger for stuttering blocks. Both lips press together to build air pressure.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "B",
+        "P"
+      ],
+      "wordCount": 50,
+      "text": "Bob and Betty planned a birthday party at the park. They brought a beautiful purple balloon and a big brown puppy. The puppy bounced playfully between the benches. Betty baked a perfect blueberry pie for everyone. Bob poured fresh lemonade into bright paper cups. Both parents beamed proudly as the children played."
+    },
+    {
+      "id": "plosives_td",
+      "title": "Plosives: T and D Sounds",
+      "description": "Tests alveolar plosives \u2014 the tongue tip presses against the ridge behind your teeth.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "T",
+        "D"
+      ],
+      "wordCount": 55,
+      "text": "Tom and Diana took a trip downtown to the train station. The tall dark building towered above the dusty road. Diana decided to take the direct train to the coast. Tom told her about a tiny diner down the trail. They tasted delicious turkey sandwiches together. The day turned out to be truly delightful for both of them."
+    },
+    {
+      "id": "plosives_kg",
+      "title": "Plosives: K and G Sounds",
+      "description": "Tests velar plosives \u2014 the back of the tongue presses against the soft palate.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "K",
+        "G"
+      ],
+      "wordCount": 55,
+      "text": "Kevin and Grace went camping near a quiet creek. They carried a green canvas tent and a cooking kit. Grace gathered colorful stones from the creek bank. Kevin cooked a great chicken curry over the campfire. The golden sunset cast a gorgeous glow across the canyon. A curious gray goose came close to their camp and gobbled their crackers."
+    },
+    {
+      "id": "fricatives_s",
+      "title": "Fricatives: S and SH Sounds",
+      "description": "Tests sibilant fricatives \u2014 continuous airflow through a narrow gap. Common trigger for prolongations.",
+      "difficulty": "medium",
+      "estimatedDuration": 30,
+      "targetSounds": [
+        "S",
+        "SH"
+      ],
+      "wordCount": 62,
+      "text": "Sarah stood silently at the seashore, watching the ships sail past. The silver sunshine sparkled across the shimmering surface of the sea. She noticed seven small shells scattered along the sandy shoreline. Slowly, Sarah started selecting the shiniest shells to share with her sister. The sharp ocean breeze shifted suddenly, sending spray across the shore. She sheltered behind a stone wall, still smiling at the spectacular scene."
+    },
+    {
+      "id": "fricatives_th",
+      "title": "Fricatives: TH Sound (voiced and unvoiced)",
+      "description": "Tests dental fricatives \u2014 tongue between teeth. One of the most challenging sounds for people who stutter.",
+      "difficulty": "medium",
+      "estimatedDuration": 30,
+      "targetSounds": [
+        "TH",
+        "DH"
+      ],
+      "wordCount": 62,
+      "text": "Three brothers gathered together on Thursday to think about their future. The eldest thought thoroughly about the path they should choose. The others threw around ideas with great enthusiasm. They theorized that the northern territory held the most potential. Father and mother both thought this was a worthwhile thought. Through thick and thin, the three brothers trusted each other completely. That evening, they thanked their parents for everything."
+    },
+    {
+      "id": "fricatives_f",
+      "title": "Fricatives: F and V Sounds",
+      "description": "Tests labiodental fricatives \u2014 lower lip touches upper teeth.",
+      "difficulty": "medium",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "F",
+        "V"
+      ],
+      "wordCount": 58,
+      "text": "Five friends from the village visited a famous festival in February. The vibrant flower fields formed a fantastic view from every direction. Victoria found a vintage violin at a vendor's table. Her friend Fiona volunteered to verify its value before purchasing. The festival featured live folk music and various food vendors. Finally, they voted to visit the fireworks viewing area before leaving."
+    },
+    {
+      "id": "clusters",
+      "title": "Consonant Clusters and Blends",
+      "description": "Tests complex consonant combinations at word onsets \u2014 requires precise motor coordination and commonly triggers part-word repetitions.",
+      "difficulty": "hard",
+      "estimatedDuration": 35,
+      "targetSounds": [
+        "STR",
+        "SP",
+        "SK",
+        "BL",
+        "FL",
+        "GR",
+        "TR",
+        "PR"
+      ],
+      "wordCount": 68,
+      "text": "The strong and brave explorer trekked across the sprawling grasslands. Strange creatures scrambled through the dry brush and scraggly trees. Black clouds spread quickly, blocking the bright blue sky. A great storm struck with tremendous flashes of lightning and thunder. The traveler sprinted toward a small stone structure for protection. Gradually the sky cleared, and a spectacular rainbow stretched from ground to sky. The trip proved to be truly thrilling despite the unpredictable spring weather."
+    },
+    {
+      "id": "liquids_rl",
+      "title": "Liquids: R and L Sounds",
+      "description": "Tests liquid consonants \u2014 the tongue must hold a precise position while air flows around it.",
+      "difficulty": "medium",
+      "estimatedDuration": 30,
+      "targetSounds": [
+        "R",
+        "L"
+      ],
+      "wordCount": 60,
+      "text": "Laura and Robert loved exploring the rolling hills near their rural home. The long winding river ran lazily through the lush green landscape. Laura regularly collected rare wildflowers along the rocky ridgeline. Robert liked reading under the large oak tree by the lake. Later, they relaxed on the lawn and listened to the lovely birdsong. Life in the countryside felt remarkably peaceful and truly liberating."
+    },
+    {
+      "id": "easy_nature",
+      "title": "Nature and Wildlife",
+      "description": "A relaxing passage about nature, containing common conversational vocabulary.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "B",
+        "S",
+        "W",
+        "F"
+      ],
+      "wordCount": 53,
+      "text": "The big yellow sun was shining over the calm sea. A small bird flew down to catch a fish in the water. We sat on the soft sand and watched the waves. It felt wonderful to breathe the fresh salty air. By the end of the day, we were happy and relaxed."
+    },
+    {
+      "id": "easy_daily",
+      "title": "Daily Routine",
+      "description": "Describes a typical morning routine with simple, everyday words.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "M",
+        "C",
+        "T",
+        "D"
+      ],
+      "wordCount": 49,
+      "text": "Every morning I drink a hot cup of coffee. Then I make my bed and take a quick shower. My dog waits patiently by the door for his walk. We usually take a short stroll around the block. Today is going to be a very good day."
+    },
+    {
+      "id": "medium_technology",
+      "title": "Modern Technology",
+      "description": "Discusses technology using multisyllabic words and varied sentence structures.",
+      "difficulty": "medium",
+      "estimatedDuration": 35,
+      "targetSounds": [
+        "M",
+        "C",
+        "P",
+        "S"
+      ],
+      "wordCount": 55,
+      "text": "Modern smartphones have completely changed how we communicate with each other. People can instantly share photos, messages, and videos across the globe. While this connectivity brings us closer, it also creates new challenges. Many individuals struggle to disconnect from their digital devices at night. Finding a healthy balance requires conscious effort and personal discipline."
+    },
+    {
+      "id": "medium_travel",
+      "title": "Mountain Journey",
+      "description": "A descriptive passage about travel with a mix of fricatives and liquids.",
+      "difficulty": "medium",
+      "estimatedDuration": 35,
+      "targetSounds": [
+        "M",
+        "F",
+        "V",
+        "R",
+        "L"
+      ],
+      "wordCount": 55,
+      "text": "Our journey through the majestic mountains was filled with beautiful sights. The winding roads revealed stunning vistas of deep green valleys below. We stopped frequently to photograph the vibrant wildflowers near the river. Local villagers offered us fresh fruit and warm homemade bread. Traveling through this remote region felt like stepping back in time."
+    },
+    {
+      "id": "hard_science",
+      "title": "Neurological Pathways",
+      "description": "Highly complex vocabulary and dense consonant clusters for advanced practice.",
+      "difficulty": "hard",
+      "estimatedDuration": 45,
+      "targetSounds": [
+        "PR",
+        "STR",
+        "SP",
+        "K",
+        "N"
+      ],
+      "wordCount": 49,
+      "text": "The neurological pathways responsible for spontaneous vocalizations are incredibly complex. Researchers have struggled to precisely map the intricate networks of the brain. Specific structural anomalies occasionally present profound physiological complications. Consequently, clinical practitioners prescribe specialized therapeutic protocols. Progress primarily depends on consistent practice and strategic psychological reinforcement."
+    }
+  ],
+  "passagesMap": {
+    "screening": {
+      "id": "screening",
+      "title": "General Screening Passage",
+      "description": "A comprehensive passage that tests all major stutter-prone sounds. Read this first to identify your specific weak areas.",
+      "difficulty": "medium",
+      "estimatedDuration": 45,
+      "targetSounds": [
+        "B",
+        "P",
+        "T",
+        "D",
+        "K",
+        "G",
+        "S",
+        "TH",
+        "F",
+        "R",
+        "L",
+        "SH",
+        "STR"
+      ],
+      "text": "Peter bought a big blue basket at the store. The sturdy basket seemed perfect for collecting strawberries. He thought about picking three bushels but decided to start with just one. Growing berries requires patience and strength. The thorny branches scratch and pull at your skin. Still, Peter felt grateful for the fresh fruit. Back home, he carefully placed the bright red berries in a glass bowl. His daughter Sophie clapped and smiled at the beautiful display. Together they decided to bake a delicious strawberry cake for the family gathering.",
+      "wordCount": 80,
+      "soundMap": {
+        "B": [
+          "bought",
+          "big",
+          "blue",
+          "basket",
+          "berries",
+          "back",
+          "bright",
+          "bowl",
+          "beautiful",
+          "bake"
+        ],
+        "P": [
+          "Peter",
+          "perfect",
+          "picking",
+          "patience",
+          "pull",
+          "placed",
+          "Peter"
+        ],
+        "T": [
+          "the",
+          "three",
+          "together",
+          "thorny",
+          "they",
+          "to"
+        ],
+        "D": [
+          "decided",
+          "daughter",
+          "display",
+          "delicious",
+          "decided"
+        ],
+        "K": [
+          "collecting",
+          "cake",
+          "carefully",
+          "clapped"
+        ],
+        "G": [
+          "growing",
+          "grateful",
+          "glass",
+          "gathering"
+        ],
+        "S": [
+          "store",
+          "sturdy",
+          "seemed",
+          "start",
+          "still",
+          "skin",
+          "Sophie",
+          "smiled",
+          "strawberry"
+        ],
+        "STR": [
+          "strawberries",
+          "strength",
+          "scratch",
+          "strawberry"
+        ],
+        "TH": [
+          "the",
+          "thought",
+          "three",
+          "thorny"
+        ],
+        "F": [
+          "for",
+          "fruit",
+          "felt",
+          "fresh",
+          "family",
+          "felt"
+        ],
+        "R": [
+          "red",
+          "requires",
+          "red"
+        ],
+        "L": [
+          "like",
+          "just"
+        ],
+        "SH": [
+          "she"
+        ]
+      }
+    },
+    "plosives_bp": {
+      "id": "plosives_bp",
+      "title": "Plosives: B and P Sounds",
+      "description": "Tests bilabial plosives \u2014 the most common trigger for stuttering blocks. Both lips press together to build air pressure.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "B",
+        "P"
+      ],
+      "text": "Bob and Betty planned a birthday party at the park. They brought a beautiful purple balloon and a big brown puppy. The puppy bounced playfully between the benches. Betty baked a perfect blueberry pie for everyone. Bob poured fresh lemonade into bright paper cups. Both parents beamed proudly as the children played.",
+      "wordCount": 50,
+      "soundMap": {
+        "B": [
+          "Bob",
+          "Betty",
+          "birthday",
+          "brought",
+          "beautiful",
+          "balloon",
+          "big",
+          "brown",
+          "bounced",
+          "between",
+          "benches",
+          "Betty",
+          "baked",
+          "blueberry",
+          "bright",
+          "Both",
+          "beamed"
+        ],
+        "P": [
+          "planned",
+          "party",
+          "park",
+          "purple",
+          "puppy",
+          "playfully",
+          "perfect",
+          "pie",
+          "poured",
+          "paper",
+          "parents",
+          "proudly",
+          "played"
+        ]
+      }
+    },
+    "plosives_td": {
+      "id": "plosives_td",
+      "title": "Plosives: T and D Sounds",
+      "description": "Tests alveolar plosives \u2014 the tongue tip presses against the ridge behind your teeth.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "T",
+        "D"
+      ],
+      "text": "Tom and Diana took a trip downtown to the train station. The tall dark building towered above the dusty road. Diana decided to take the direct train to the coast. Tom told her about a tiny diner down the trail. They tasted delicious turkey sandwiches together. The day turned out to be truly delightful for both of them.",
+      "wordCount": 55,
+      "soundMap": {
+        "T": [
+          "Tom",
+          "took",
+          "trip",
+          "train",
+          "tall",
+          "towered",
+          "take",
+          "told",
+          "tiny",
+          "trail",
+          "tasted",
+          "turkey",
+          "together",
+          "turned",
+          "truly"
+        ],
+        "D": [
+          "Diana",
+          "downtown",
+          "dark",
+          "dusty",
+          "decided",
+          "direct",
+          "diner",
+          "down",
+          "delicious",
+          "day",
+          "delightful"
+        ]
+      }
+    },
+    "plosives_kg": {
+      "id": "plosives_kg",
+      "title": "Plosives: K and G Sounds",
+      "description": "Tests velar plosives \u2014 the back of the tongue presses against the soft palate.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "K",
+        "G"
+      ],
+      "text": "Kevin and Grace went camping near a quiet creek. They carried a green canvas tent and a cooking kit. Grace gathered colorful stones from the creek bank. Kevin cooked a great chicken curry over the campfire. The golden sunset cast a gorgeous glow across the canyon. A curious gray goose came close to their camp and gobbled their crackers.",
+      "wordCount": 55,
+      "soundMap": {
+        "K": [
+          "Kevin",
+          "camping",
+          "quiet",
+          "creek",
+          "carried",
+          "canvas",
+          "cooking",
+          "kit",
+          "colorful",
+          "creek",
+          "Kevin",
+          "cooked",
+          "curry",
+          "campfire",
+          "cast",
+          "canyon",
+          "curious",
+          "came",
+          "close",
+          "camp",
+          "crackers"
+        ],
+        "G": [
+          "Grace",
+          "green",
+          "gathered",
+          "great",
+          "golden",
+          "gorgeous",
+          "glow",
+          "gray",
+          "goose",
+          "gobbled"
+        ]
+      }
+    },
+    "fricatives_s": {
+      "id": "fricatives_s",
+      "title": "Fricatives: S and SH Sounds",
+      "description": "Tests sibilant fricatives \u2014 continuous airflow through a narrow gap. Common trigger for prolongations.",
+      "difficulty": "medium",
+      "estimatedDuration": 30,
+      "targetSounds": [
+        "S",
+        "SH"
+      ],
+      "text": "Sarah stood silently at the seashore, watching the ships sail past. The silver sunshine sparkled across the shimmering surface of the sea. She noticed seven small shells scattered along the sandy shoreline. Slowly, Sarah started selecting the shiniest shells to share with her sister. The sharp ocean breeze shifted suddenly, sending spray across the shore. She sheltered behind a stone wall, still smiling at the spectacular scene.",
+      "wordCount": 62,
+      "soundMap": {
+        "S": [
+          "Sarah",
+          "stood",
+          "silently",
+          "seashore",
+          "ships",
+          "sail",
+          "silver",
+          "sunshine",
+          "sparkled",
+          "surface",
+          "sea",
+          "seven",
+          "small",
+          "scattered",
+          "sandy",
+          "slowly",
+          "Sarah",
+          "started",
+          "selecting",
+          "shiniest",
+          "share",
+          "sister",
+          "shifted",
+          "suddenly",
+          "sending",
+          "spray",
+          "she",
+          "sheltered",
+          "stone",
+          "still",
+          "smiling",
+          "spectacular",
+          "scene"
+        ],
+        "SH": [
+          "seashore",
+          "ships",
+          "shimmering",
+          "shells",
+          "shoreline",
+          "shiniest",
+          "share",
+          "sharp",
+          "shifted",
+          "shore",
+          "she",
+          "sheltered"
+        ]
+      }
+    },
+    "fricatives_th": {
+      "id": "fricatives_th",
+      "title": "Fricatives: TH Sound (voiced and unvoiced)",
+      "description": "Tests dental fricatives \u2014 tongue between teeth. One of the most challenging sounds for people who stutter.",
+      "difficulty": "medium",
+      "estimatedDuration": 30,
+      "targetSounds": [
+        "TH",
+        "DH"
+      ],
+      "text": "Three brothers gathered together on Thursday to think about their future. The eldest thought thoroughly about the path they should choose. The others threw around ideas with great enthusiasm. They theorized that the northern territory held the most potential. Father and mother both thought this was a worthwhile thought. Through thick and thin, the three brothers trusted each other completely. That evening, they thanked their parents for everything.",
+      "wordCount": 62,
+      "soundMap": {
+        "TH": [
+          "Three",
+          "Thursday",
+          "think",
+          "thought",
+          "thoroughly",
+          "threw",
+          "theorized",
+          "the",
+          "northern",
+          "territory",
+          "thought",
+          "Through",
+          "thick",
+          "thin",
+          "three",
+          "thanked",
+          "their",
+          "that",
+          "everything"
+        ],
+        "DH": [
+          "the",
+          "their",
+          "they",
+          "this",
+          "that",
+          "the",
+          "other"
+        ]
+      }
+    },
+    "fricatives_f": {
+      "id": "fricatives_f",
+      "title": "Fricatives: F and V Sounds",
+      "description": "Tests labiodental fricatives \u2014 lower lip touches upper teeth.",
+      "difficulty": "medium",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "F",
+        "V"
+      ],
+      "text": "Five friends from the village visited a famous festival in February. The vibrant flower fields formed a fantastic view from every direction. Victoria found a vintage violin at a vendor's table. Her friend Fiona volunteered to verify its value before purchasing. The festival featured live folk music and various food vendors. Finally, they voted to visit the fireworks viewing area before leaving.",
+      "wordCount": 58,
+      "soundMap": {
+        "F": [
+          "Five",
+          "friends",
+          "from",
+          "famous",
+          "festival",
+          "February",
+          "flower",
+          "fields",
+          "formed",
+          "fantastic",
+          "found",
+          "Fiona",
+          "folk",
+          "food",
+          "Finally",
+          "fireworks"
+        ],
+        "V": [
+          "village",
+          "visited",
+          "vibrant",
+          "view",
+          "Victoria",
+          "vintage",
+          "violin",
+          "vendor",
+          "volunteered",
+          "verify",
+          "value",
+          "various",
+          "vendors",
+          "voted",
+          "visit",
+          "viewing"
+        ]
+      }
+    },
+    "clusters": {
+      "id": "clusters",
+      "title": "Consonant Clusters and Blends",
+      "description": "Tests complex consonant combinations at word onsets \u2014 requires precise motor coordination and commonly triggers part-word repetitions.",
+      "difficulty": "hard",
+      "estimatedDuration": 35,
+      "targetSounds": [
+        "STR",
+        "SP",
+        "SK",
+        "BL",
+        "FL",
+        "GR",
+        "TR",
+        "PR"
+      ],
+      "text": "The strong and brave explorer trekked across the sprawling grasslands. Strange creatures scrambled through the dry brush and scraggly trees. Black clouds spread quickly, blocking the bright blue sky. A great storm struck with tremendous flashes of lightning and thunder. The traveler sprinted toward a small stone structure for protection. Gradually the sky cleared, and a spectacular rainbow stretched from ground to sky. The trip proved to be truly thrilling despite the unpredictable spring weather.",
+      "wordCount": 68,
+      "soundMap": {
+        "STR": [
+          "strong",
+          "strange",
+          "struck",
+          "structure",
+          "stretched",
+          "spring"
+        ],
+        "SP": [
+          "sprawling",
+          "spread",
+          "spectacular",
+          "sprinted",
+          "spring"
+        ],
+        "SK": [
+          "sky",
+          "scrambled",
+          "scraggly",
+          "sky",
+          "sky"
+        ],
+        "BL": [
+          "brave",
+          "brush",
+          "black",
+          "blocking",
+          "bright",
+          "blue"
+        ],
+        "FL": [
+          "flashes"
+        ],
+        "GR": [
+          "grasslands",
+          "great",
+          "gradually",
+          "ground"
+        ],
+        "TR": [
+          "trekked",
+          "trees",
+          "tremendous",
+          "traveler",
+          "trip",
+          "truly",
+          "thrilling"
+        ],
+        "PR": [
+          "protection",
+          "proved",
+          "predictable"
+        ]
+      }
+    },
+    "liquids_rl": {
+      "id": "liquids_rl",
+      "title": "Liquids: R and L Sounds",
+      "description": "Tests liquid consonants \u2014 the tongue must hold a precise position while air flows around it.",
+      "difficulty": "medium",
+      "estimatedDuration": 30,
+      "targetSounds": [
+        "R",
+        "L"
+      ],
+      "text": "Laura and Robert loved exploring the rolling hills near their rural home. The long winding river ran lazily through the lush green landscape. Laura regularly collected rare wildflowers along the rocky ridgeline. Robert liked reading under the large oak tree by the lake. Later, they relaxed on the lawn and listened to the lovely birdsong. Life in the countryside felt remarkably peaceful and truly liberating.",
+      "wordCount": 60,
+      "soundMap": {
+        "R": [
+          "Robert",
+          "rolling",
+          "rural",
+          "river",
+          "ran",
+          "rare",
+          "rocky",
+          "ridgeline",
+          "Robert",
+          "reading",
+          "relaxed",
+          "remarkably"
+        ],
+        "L": [
+          "Laura",
+          "loved",
+          "long",
+          "lazily",
+          "lush",
+          "landscape",
+          "Laura",
+          "liked",
+          "large",
+          "lake",
+          "Later",
+          "lawn",
+          "listened",
+          "lovely",
+          "Life",
+          "liberating"
+        ]
+      }
+    },
+    "easy_nature": {
+      "id": "easy_nature",
+      "title": "Nature and Wildlife",
+      "description": "A relaxing passage about nature, containing common conversational vocabulary.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "B",
+        "S",
+        "W",
+        "F"
+      ],
+      "text": "The big yellow sun was shining over the calm sea. A small bird flew down to catch a fish in the water. We sat on the soft sand and watched the waves. It felt wonderful to breathe the fresh salty air. By the end of the day, we were happy and relaxed.",
+      "wordCount": 53,
+      "soundMap": {
+        "B": [
+          "big",
+          "bird",
+          "breathe",
+          "By"
+        ],
+        "S": [
+          "sun",
+          "shining",
+          "sea",
+          "small",
+          "sat",
+          "soft",
+          "sand",
+          "salty"
+        ],
+        "W": [
+          "was",
+          "water",
+          "We",
+          "watched",
+          "waves",
+          "wonderful",
+          "we",
+          "were"
+        ],
+        "F": [
+          "flew",
+          "fish",
+          "felt",
+          "fresh"
+        ]
+      }
+    },
+    "easy_daily": {
+      "id": "easy_daily",
+      "title": "Daily Routine",
+      "description": "Describes a typical morning routine with simple, everyday words.",
+      "difficulty": "easy",
+      "estimatedDuration": 25,
+      "targetSounds": [
+        "M",
+        "C",
+        "T",
+        "D"
+      ],
+      "text": "Every morning I drink a hot cup of coffee. Then I make my bed and take a quick shower. My dog waits patiently by the door for his walk. We usually take a short stroll around the block. Today is going to be a very good day.",
+      "wordCount": 49,
+      "soundMap": {
+        "M": [
+          "morning",
+          "make",
+          "my",
+          "My"
+        ],
+        "C": [
+          "cup",
+          "coffee"
+        ],
+        "T": [
+          "Then",
+          "take",
+          "Today",
+          "to"
+        ],
+        "D": [
+          "drink",
+          "dog",
+          "door",
+          "day"
+        ]
+      }
+    },
+    "medium_technology": {
+      "id": "medium_technology",
+      "title": "Modern Technology",
+      "description": "Discusses technology using multisyllabic words and varied sentence structures.",
+      "difficulty": "medium",
+      "estimatedDuration": 35,
+      "targetSounds": [
+        "M",
+        "C",
+        "P",
+        "S"
+      ],
+      "text": "Modern smartphones have completely changed how we communicate with each other. People can instantly share photos, messages, and videos across the globe. While this connectivity brings us closer, it also creates new challenges. Many individuals struggle to disconnect from their digital devices at night. Finding a healthy balance requires conscious effort and personal discipline.",
+      "wordCount": 55,
+      "soundMap": {
+        "M": [
+          "Modern",
+          "messages",
+          "Many"
+        ],
+        "C": [
+          "completely",
+          "changed",
+          "communicate",
+          "can",
+          "connectivity",
+          "closer",
+          "creates",
+          "challenges",
+          "conscious"
+        ],
+        "P": [
+          "People",
+          "photos",
+          "personal"
+        ],
+        "S": [
+          "smartphones",
+          "share",
+          "struggle"
+        ]
+      }
+    },
+    "medium_travel": {
+      "id": "medium_travel",
+      "title": "Mountain Journey",
+      "description": "A descriptive passage about travel with a mix of fricatives and liquids.",
+      "difficulty": "medium",
+      "estimatedDuration": 35,
+      "targetSounds": [
+        "M",
+        "F",
+        "V",
+        "R",
+        "L"
+      ],
+      "text": "Our journey through the majestic mountains was filled with beautiful sights. The winding roads revealed stunning vistas of deep green valleys below. We stopped frequently to photograph the vibrant wildflowers near the river. Local villagers offered us fresh fruit and warm homemade bread. Traveling through this remote region felt like stepping back in time.",
+      "wordCount": 55,
+      "soundMap": {
+        "M": [
+          "majestic",
+          "mountains"
+        ],
+        "F": [
+          "filled",
+          "frequently",
+          "fresh",
+          "fruit",
+          "felt"
+        ],
+        "V": [
+          "vistas",
+          "valleys",
+          "vibrant",
+          "villagers"
+        ],
+        "R": [
+          "roads",
+          "revealed",
+          "river",
+          "remote",
+          "region"
+        ],
+        "L": [
+          "Local",
+          "like"
+        ]
+      }
+    },
+    "hard_science": {
+      "id": "hard_science",
+      "title": "Neurological Pathways",
+      "description": "Highly complex vocabulary and dense consonant clusters for advanced practice.",
+      "difficulty": "hard",
+      "estimatedDuration": 45,
+      "targetSounds": [
+        "PR",
+        "STR",
+        "SP",
+        "K",
+        "N"
+      ],
+      "text": "The neurological pathways responsible for spontaneous vocalizations are incredibly complex. Researchers have struggled to precisely map the intricate networks of the brain. Specific structural anomalies occasionally present profound physiological complications. Consequently, clinical practitioners prescribe specialized therapeutic protocols. Progress primarily depends on consistent practice and strategic psychological reinforcement.",
+      "wordCount": 49,
+      "soundMap": {
+        "PR": [
+          "present",
+          "profound",
+          "practitioners",
+          "prescribe",
+          "protocols",
+          "Progress",
+          "primarily",
+          "practice"
+        ],
+        "STR": [
+          "struggled",
+          "structural",
+          "strategic"
+        ],
+        "SP": [
+          "spontaneous",
+          "Specific",
+          "specialized"
+        ],
+        "K": [
+          "complex",
+          "Consequently",
+          "clinical",
+          "consistent"
+        ],
+        "N": [
+          "neurological",
+          "networks"
+        ]
+      }
+    }
+  }
+}

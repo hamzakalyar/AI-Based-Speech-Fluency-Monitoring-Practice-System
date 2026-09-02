@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
 import {
    Mic, Square, Pause, Play, RotateCcw,
    Waves, Ruler, Sparkles, Trash2,
-   ChevronRight, Share2, Save, MoreHorizontal,
+   ChevronRight, ChevronLeft, Share2, Save, MoreHorizontal,
    ArrowRight, CheckCircle2, Loader2, X,
    Volume2, ShieldCheck, Zap, FileText,
    Calendar, Target, Activity, Trophy,
    Star, MessageSquare, Headphones, Upload, CloudUpload,
-   Clock, FileType, Check, VolumeX, Info, Quote
+   Clock, FileType, Check, VolumeX, Info, Quote,
+   BookOpen, Search, Filter
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRecording } from '../hooks/useRecording';
@@ -16,12 +16,16 @@ import WaveformCanvas from '../components/features/Recording/WaveformCanvas';
 import { formatDuration } from '../utils/formatMetrics';
 import { sessionsService } from '../services/sessionsService';
 import { analyticsService } from '../services/analyticsService';
+import passagesData from '../data/passages.json';
 
 const RecordingStudio = () => {
    const navigate = useNavigate();
    const [showReRecordModal, setShowReRecordModal] = useState(false);
+   const [showPassageModal, setShowPassageModal] = useState(false);
+   const [passageFilter, setPassageFilter] = useState('all');
+   const [passageSearch, setPassageSearch] = useState('');
    const [currentStep, setCurrentStep] = useState(0);
-   const [passages, setPassages] = useState([]);
+   const [passages, setPassages] = useState(passagesData.passages || []);
    const [activePassageIndex, setActivePassageIndex] = useState(0);
    const [isFreeRecord, setIsFreeRecord] = useState(false);
    const [weeklyStats, setWeeklyStats] = useState(null);
@@ -158,57 +162,59 @@ const RecordingStudio = () => {
       const loadSidebarData = async () => {
          const isDemo = localStorage.getItem('is_demo_mode') === 'true';
          if (isDemo) {
-            setPassages(MOCK_DEMO_PASSAGES);
+            setPassages(passagesData.passages || MOCK_DEMO_PASSAGES);
             setWeeklyStats(MOCK_DEMO_WEEKLY_STATS);
             setLastSession(MOCK_DEMO_LAST_SESSION);
             return;
          }
 
          try {
-            const [passagesRes, statsRes, lastSessionRes] = await Promise.all([
+            const [passagesResult, statsResult, lastSessionResult] = await Promise.allSettled([
                sessionsService.getPassages(),
                analyticsService.getSummary(),
                sessionsService.getSessions({ limit: 1 })
             ]);
 
-            // Express proxy at /api/assessment-passages returns { passages: [...] }
-            // Python /assessment-passages returns { passages: [...] } too
-            // Raw array is also possible — handle all shapes defensively
-            const rawPassages =
-               passagesRes.data?.passages ||
-               (Array.isArray(passagesRes.data) ? passagesRes.data : null);
+            if (passagesResult.status === 'fulfilled' && passagesResult.value?.data) {
+               const rawPassages =
+                  passagesResult.value.data?.passages ||
+                  (Array.isArray(passagesResult.value.data) ? passagesResult.value.data : null);
 
-            if (rawPassages && rawPassages.length > 0) {
-               // Normalise: ensure each passage has id + title fields
-               const normalised = rawPassages.map(p => ({
-                  ...p,
-                  id:    p.id    || p._id  || '',
-                  title: p.title || p.name || p.id || 'Passage',
-                  text:  p.text  || '',
-                  targetSounds: p.targetSounds || [],
-               }));
-               setPassages(normalised);
-            } else {
-               // Python service may be down — fall back to built-in mock passages
-               // so the daily-routine panel is never blank
-               console.warn('Passages API returned empty — using built-in fallback passages');
-               setPassages(MOCK_DEMO_PASSAGES);
+               if (rawPassages && rawPassages.length > 0) {
+                  const normalised = rawPassages.map(p => ({
+                     ...p,
+                     id: p.id || p._id || '',
+                     title: p.title || p.name || p.id || 'Passage',
+                     text: p.text || '',
+                     targetSounds: p.targetSounds || [],
+                  }));
+                  setPassages(normalised);
+               } else if (passagesData.passages?.length > 0) {
+                  setPassages(passagesData.passages);
+               }
+            } else if (passagesData.passages?.length > 0) {
+               // Resilient fallback to built-in clinical passages
+               setPassages(passagesData.passages);
             }
 
-            setWeeklyStats(statsRes.data);
-            if (lastSessionRes.data.sessions?.length > 0) {
-               setLastSession(lastSessionRes.data.sessions[0]);
+            if (statsResult.status === 'fulfilled') {
+               setWeeklyStats(statsResult.value?.data);
+            }
+
+            if (lastSessionResult.status === 'fulfilled' && lastSessionResult.value?.data?.sessions?.length > 0) {
+               setLastSession(lastSessionResult.value.data.sessions[0]);
             }
          } catch (e) {
             console.error("Failed to fetch sidebar data", e);
-            // Always fall back so the passage panel is never blank
-            setPassages(MOCK_DEMO_PASSAGES);
+            if (passagesData.passages?.length > 0) {
+               setPassages(passagesData.passages);
+            }
          }
       };
       loadSidebarData();
    }, []);
 
-   const activePassage = passages[activePassageIndex] || null;
+   const activePassage = passages[activePassageIndex] || passagesData.passages?.[0] || null;
    const currentPassageText = activePassage ? activePassage.text : "Select a passage to begin your practice.";
 
    return (
@@ -260,50 +266,131 @@ const RecordingStudio = () => {
                         <div className="w-14 h-14 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500 mb-2">
                            <Mic size={26} />
                         </div>
-                        <p className="text-[16px] font-semibold text-[var(--text-primary)] leading-relaxed">
-                           Speak freely — talk about anything you like.
-                        </p>
-                        <p className="text-[12px] text-[var(--text-muted)] font-medium max-w-sm">
-                           Your fluency, speech rate, and stutters will be analyzed without comparing to any script.
-                        </p>
-                     </div>
-                  </div>
-               ) : (
-                  /* DAILY ROUTINE MODE — passage reading with script */
-                  <div className="bg-[var(--bg-surface)] rounded-3xl p-6 pb-12 shadow-sm border border-[var(--border-subtle)] relative flex flex-col gap-4 flex-1 min-h-[400px] sm:min-h-[450px]">
-                     <div className="flex items-center justify-between mb-2 border-b border-[var(--border-subtle)] pb-3">
-                        <div className="flex items-center gap-2">
-                           <div className="w-6 h-6 rounded-full bg-teal-50 flex items-center justify-center text-teal-600">
-                              <Target size={12} />
-                           </div>
-                           <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-primary)]">ACTIVE PRACTICE</span>
-                        </div>
-                        <select 
-                           value={activePassageIndex} 
-                           onChange={(e) => setActivePassageIndex(Number(e.target.value))}
-                           disabled={activeStep !== 0}
-                           className="bg-transparent text-[10px] sm:text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[var(--border-subtle)] outline-none cursor-pointer max-w-[200px] truncate"
-                        >
-                           {passages.map((p, idx) => (
-                              <option key={p.id} value={idx}>{p.title || `P${idx + 1}`}</option>
-                           ))}
-                        </select>
-                     </div>
-                     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar py-8 px-8 sm:px-12 flex items-center justify-center">
-                        <p className="text-[18px] sm:text-[22px] font-medium text-[var(--text-secondary)] leading-[1.8] font-serif italic text-center">"{currentPassageText}"</p>
-                     </div>
-                     {activePassage && activePassage.targetSounds && (
-                        <div className="flex flex-wrap items-center gap-2 px-6 pt-3 border-t border-[var(--border-subtle)] bg-[var(--bg-elevated)]/20 rounded-b-2xl">
-                           <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest self-center mr-1">Target Sounds:</span>
-                           {activePassage.targetSounds.map(sound => (
-                              <span key={sound} className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-teal-500/10 dark:bg-teal-950/30 text-teal-600 border border-teal-200/50">
-                                 {sound}
-                              </span>
-                           ))}
-                        </div>
-                     )}
-                  </div>
-               )}
+                         <p className="text-[16px] font-semibold text-[var(--text-primary)] leading-relaxed">
+                            Speak freely — talk about anything you like.
+                         </p>
+                         <p className="text-[12px] text-[var(--text-muted)] font-medium max-w-sm">
+                            Your fluency, speech rate, and stutters will be analyzed without comparing to any script.
+                         </p>
+                      </div>
+                   </div>
+                ) : (
+                   /* DAILY ROUTINE MODE — passage reading with script */
+                   <div className="bg-[var(--bg-surface)] rounded-3xl p-6 pb-8 shadow-sm border border-[var(--border-subtle)] relative flex flex-col gap-4 flex-1 min-h-[420px]">
+                      {/* Passage Controls Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
+                         <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                               <Target size={14} />
+                            </div>
+                            <div className="min-w-0">
+                               <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[11px] font-black uppercase tracking-widest text-[var(--text-primary)] truncate">
+                                     {activePassage?.title || 'Active Passage'}
+                                  </span>
+                                  {activePassage?.difficulty && (
+                                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 ${
+                                        activePassage.difficulty === 'easy'
+                                           ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-200/50'
+                                           : activePassage.difficulty === 'medium'
+                                           ? 'bg-amber-500/10 text-amber-600 border border-amber-200/50'
+                                           : 'bg-purple-500/10 text-purple-600 border border-purple-200/50'
+                                     }`}>
+                                        {activePassage.difficulty}
+                                     </span>
+                                  )}
+                               </div>
+                               {activePassage?.description && (
+                                  <p className="text-[11px] text-[var(--text-muted)] font-medium line-clamp-1 mt-0.5">
+                                     {activePassage.description}
+                                  </p>
+                               )}
+                            </div>
+                         </div>
+
+                         {/* Quick Switcher & Browse Button */}
+                         <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                            {/* Prev / Next Arrows */}
+                            <div className="flex items-center bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-subtle)] p-0.5">
+                               <button
+                                  onClick={() => setActivePassageIndex(prev => (prev > 0 ? prev - 1 : passages.length - 1))}
+                                  disabled={activeStep !== 0}
+                                  title="Previous passage"
+                                  className="w-7 h-7 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-teal-600 hover:bg-[var(--bg-surface)] disabled:opacity-40 transition-all"
+                               >
+                                  <ChevronLeft size={14} />
+                               </button>
+                               <span className="text-[10px] font-mono font-bold px-2 text-[var(--text-muted)]">
+                                  {activePassageIndex + 1}/{passages.length}
+                               </span>
+                               <button
+                                  onClick={() => setActivePassageIndex(prev => (prev < passages.length - 1 ? prev + 1 : 0))}
+                                  disabled={activeStep !== 0}
+                                  title="Next passage"
+                                  className="w-7 h-7 flex items-center justify-center rounded-lg text-[var(--text-secondary)] hover:text-teal-600 hover:bg-[var(--bg-surface)] disabled:opacity-40 transition-all"
+                               >
+                                  <ChevronRight size={14} />
+                               </button>
+                            </div>
+
+                            {/* Dropdown Select with explicitly styled options */}
+                            <select 
+                               value={activePassageIndex} 
+                               onChange={(e) => setActivePassageIndex(Number(e.target.value))}
+                               disabled={activeStep !== 0}
+                               className="bg-[var(--bg-elevated)] text-[10px] sm:text-[11px] font-bold text-[var(--text-primary)] px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] outline-none cursor-pointer max-w-[160px] truncate"
+                            >
+                               {passages.map((p, idx) => (
+                                  <option key={p.id} value={idx} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 py-1">
+                                     {p.title || `Passage ${idx + 1}`}
+                                  </option>
+                               ))}
+                            </select>
+
+                            {/* Browse All Passages Button */}
+                            <button
+                               onClick={() => setShowPassageModal(true)}
+                               disabled={activeStep !== 0}
+                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 font-black text-[10px] uppercase tracking-wider transition-all disabled:opacity-40 border border-teal-500/20"
+                            >
+                               <BookOpen size={13} />
+                               <span className="hidden sm:inline">Browse</span> ({passages.length})
+                            </button>
+                         </div>
+                      </div>
+
+                      {/* Passage Script Content */}
+                      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar py-6 px-6 sm:px-10 flex flex-col items-center justify-center text-center">
+                         <div className="w-8 h-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500 mb-3 opacity-60">
+                            <Quote size={16} />
+                         </div>
+                         <p className="text-[17px] sm:text-[21px] font-medium text-[var(--text-secondary)] leading-[1.8] font-serif italic max-w-2xl">
+                            "{currentPassageText}"
+                         </p>
+                         <div className="flex items-center gap-4 mt-4 text-[10px] font-mono text-[var(--text-muted)]">
+                            {activePassage?.wordCount && <span>{activePassage.wordCount} words</span>}
+                            {activePassage?.estimatedDuration && <span>Est. ~{activePassage.estimatedDuration}s reading</span>}
+                         </div>
+                      </div>
+
+                      {/* Target Sounds Footer */}
+                      {activePassage && activePassage.targetSounds && activePassage.targetSounds.length > 0 && (
+                         <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-t border-[var(--border-subtle)] bg-[var(--bg-elevated)]/30 rounded-2xl">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                               <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mr-1">Phonetic Targets:</span>
+                               {activePassage.targetSounds.map(sound => (
+                                  <span key={sound} className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-200/40">
+                                     {sound}
+                                  </span>
+                               ))}
+                            </div>
+                            <span className="text-[10px] text-[var(--text-muted)] italic">
+                               Read at your natural speaking pace
+                            </span>
+                         </div>
+                      )}
+                   </div>
+                )}
 
                <div className="bg-[#0F172A] rounded-3xl shadow-lg p-6 flex flex-col gap-4 relative overflow-hidden text-white min-h-[400px] sm:min-h-[450px]">
                   <div className="flex justify-between items-center px-1 mb-0.5 shrink-0">
@@ -542,6 +629,140 @@ const RecordingStudio = () => {
                   <div className="flex flex-col gap-2 mt-4">
                      <button onClick={() => { resetRecording(); setShowReRecordModal(false); }} className="w-full py-2.5 rounded-xl bg-red-500 text-white font-bold text-[11px]">Delete & Redo</button>
                      <button onClick={() => setShowReRecordModal(false)} className="w-full py-2.5 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] font-bold text-[11px]">Cancel</button>
+                  </div>
+               </div>
+            </div>
+         )}
+
+         {/* BROWSE ALL PASSAGES MODAL */}
+         {showPassageModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+               <div className="bg-[var(--bg-surface)] rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-[var(--border-subtle)] overflow-hidden">
+                  {/* Modal Header */}
+                  <div className="p-6 border-b border-[var(--border-subtle)] flex items-center justify-between shrink-0 bg-[var(--bg-elevated)]/40">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                           <BookOpen size={20} />
+                        </div>
+                        <div>
+                           <h2 className="text-lg font-black text-[var(--text-primary)] font-syne">Clinical Assessment Passages</h2>
+                           <p className="text-xs text-[var(--text-muted)] font-medium">Select a research-backed passage to target specific speech disfluencies</p>
+                        </div>
+                     </div>
+                     <button
+                        onClick={() => setShowPassageModal(false)}
+                        className="w-8 h-8 rounded-full bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all"
+                     >
+                        <X size={16} />
+                     </button>
+                  </div>
+
+                  {/* Search and Difficulty Filter Controls */}
+                  <div className="p-4 border-b border-[var(--border-subtle)] flex flex-col sm:flex-row gap-3 items-center justify-between bg-[var(--bg-surface)] shrink-0">
+                     <div className="relative w-full sm:w-72">
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+                        <input
+                           type="text"
+                           placeholder="Search by title, sound, or word..."
+                           value={passageSearch}
+                           onChange={(e) => setPassageSearch(e.target.value)}
+                           className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] outline-none focus:border-teal-500 transition-all"
+                        />
+                     </div>
+
+                     <div className="flex items-center gap-1.5 self-start sm:self-auto overflow-x-auto w-full sm:w-auto">
+                        {['all', 'easy', 'medium', 'hard'].map(diff => (
+                           <button
+                              key={diff}
+                              onClick={() => setPassageFilter(diff)}
+                              className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                                 passageFilter === diff
+                                    ? 'bg-teal-500 text-white shadow-sm'
+                                    : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                              }`}
+                           >
+                              {diff}
+                           </button>
+                        ))}
+                     </div>
+                  </div>
+
+                  {/* Passages Grid */}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
+                     {passages
+                        .filter(p => {
+                           const matchesDiff = passageFilter === 'all' || p.difficulty === passageFilter;
+                           const searchLower = passageSearch.toLowerCase();
+                           const matchesSearch = !passageSearch || 
+                              p.title?.toLowerCase().includes(searchLower) ||
+                              p.description?.toLowerCase().includes(searchLower) ||
+                              p.targetSounds?.some(s => s.toLowerCase().includes(searchLower)) ||
+                              p.text?.toLowerCase().includes(searchLower);
+                           return matchesDiff && matchesSearch;
+                        })
+                        .map(p => {
+                           const idx = passages.findIndex(item => item.id === p.id);
+                           const isSelected = activePassageIndex === idx;
+                           return (
+                              <div
+                                 key={p.id}
+                                 onClick={() => {
+                                    setActivePassageIndex(idx);
+                                    setShowPassageModal(false);
+                                 }}
+                                 className={`p-4 rounded-2xl border transition-all cursor-pointer text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                                    isSelected 
+                                       ? 'bg-teal-500/5 border-teal-500 ring-2 ring-teal-500/20 shadow-md'
+                                       : 'bg-[var(--bg-elevated)]/60 hover:bg-[var(--bg-elevated)] border-[var(--border-subtle)] hover:border-teal-500/30'
+                                 }`}
+                              >
+                                 <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                       <h3 className="font-bold text-sm text-[var(--text-primary)]">{p.title}</h3>
+                                       {p.difficulty && (
+                                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                                             p.difficulty === 'easy' ? 'bg-emerald-500/10 text-emerald-600' :
+                                             p.difficulty === 'medium' ? 'bg-amber-500/10 text-amber-600' :
+                                             'bg-purple-500/10 text-purple-600'
+                                          }`}>
+                                             {p.difficulty}
+                                          </span>
+                                       )}
+                                       {p.wordCount && (
+                                          <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                                             {p.wordCount} words
+                                          </span>
+                                       )}
+                                       {p.estimatedDuration && (
+                                          <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                                             ~{p.estimatedDuration}s
+                                          </span>
+                                       )}
+                                    </div>
+                                    <p className="text-xs text-[var(--text-muted)] line-clamp-1 mb-2">
+                                       {p.description || p.text}
+                                    </p>
+                                    <div className="flex flex-wrap gap-1">
+                                       {p.targetSounds?.map(s => (
+                                          <span key={s} className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-teal-500/10 text-teal-600">
+                                             {s}
+                                          </span>
+                                       ))}
+                                    </div>
+                                 </div>
+
+                                 <button
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider shrink-0 transition-all ${
+                                       isSelected
+                                          ? 'bg-teal-500 text-white shadow-sm'
+                                          : 'border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-teal-500/10 hover:text-teal-600'
+                                    }`}
+                                 >
+                                    {isSelected ? 'Active' : 'Select'}
+                                 </button>
+                              </div>
+                           );
+                        })}
                   </div>
                </div>
             </div>
