@@ -20,6 +20,9 @@ export const useRecording = () => {
   const timerRef = useRef(null);
   const chunksRef = useRef([]);
   const audioBlobRef = useRef(null);
+  // Voice-activity detection: tracks whether any non-silent audio was captured
+  const hasVoiceRef = useRef(false);
+  const vadIntervalRef = useRef(null);
 
   const startRecording = useCallback(async () => {
     try {
@@ -28,6 +31,7 @@ export const useRecording = () => {
       setSessionId(null);
       setAnalysisResults(null);
       chunksRef.current = [];
+      hasVoiceRef.current = false;  // Reset VAD flag for this new recording
 
       let stream;
       try {
@@ -78,6 +82,23 @@ export const useRecording = () => {
         source.connect(compressor);
         compressor.connect(analyserNode);
         setAnalyser(analyserNode);
+
+        // ─── Real-time Voice Activity Detection ───────────────────────────
+        // Poll the analyser every 100ms; compute RMS amplitude.
+        // -50 dBFS ≈ typical background noise floor — any voice exceeds this.
+        const vadBuffer = new Uint8Array(analyserNode.fftSize);
+        vadIntervalRef.current = setInterval(() => {
+          analyserNode.getByteTimeDomainData(vadBuffer);
+          let sumSq = 0;
+          for (let i = 0; i < vadBuffer.length; i++) {
+            const normalized = (vadBuffer[i] - 128) / 128; // range [-1, 1]
+            sumSq += normalized * normalized;
+          }
+          const rms = Math.sqrt(sumSq / vadBuffer.length);
+          // rms > 0.01 ≈ -40 dBFS — clearly above silence
+          if (rms > 0.01) hasVoiceRef.current = true;
+        }, 100);
+        // ─────────────────────────────────────────────────────────────────
       } catch (ctxError) {
         // Waveform visualisation won't work but recording can still proceed
         console.warn('AudioContext failed — waveform disabled:', ctxError);
@@ -103,6 +124,21 @@ export const useRecording = () => {
       };
 
       recorder.onstop = () => {
+        // Stop VAD polling first
+        if (vadIntervalRef.current) {
+          clearInterval(vadIntervalRef.current);
+          vadIntervalRef.current = null;
+        }
+
+        // Immediate rejection if no voice was detected during the entire recording
+        if (!hasVoiceRef.current) {
+          console.warn('No voice detected during recording — rejecting.');
+          setAnalysisError('No voice detected. Make sure your microphone is working and you spoke during the recording.');
+          setStatus('error');
+          chunksRef.current = [];
+          return;
+        }
+
         const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
         if (blob.size < 4000) {
           // Blob is suspiciously small — likely empty/corrupt recording (< ~0.5s of opus audio)
@@ -140,11 +176,17 @@ export const useRecording = () => {
         audioContextRef.current.close();
       }
       if (timerRef.current) clearInterval(timerRef.current);
+      if (vadIntervalRef.current) clearInterval(vadIntervalRef.current);
     };
   }, []);
 
   const stopRecording = useCallback(() => {
     if (status === 'recording' || status === 'paused') {
+      // Stop VAD polling immediately when user presses stop
+      if (vadIntervalRef.current) {
+        clearInterval(vadIntervalRef.current);
+        vadIntervalRef.current = null;
+      }
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop();
       } else {
@@ -248,7 +290,12 @@ export const useRecording = () => {
     setAnalysisError(null);
     chunksRef.current = [];
     audioBlobRef.current = null;
+    hasVoiceRef.current = false;
     if (timerRef.current) clearInterval(timerRef.current);
+    if (vadIntervalRef.current) {
+      clearInterval(vadIntervalRef.current);
+      vadIntervalRef.current = null;
+    }
     // Close AudioContext if it wasn't already closed by stopRecording
     if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
       audioContextRef.current.close();

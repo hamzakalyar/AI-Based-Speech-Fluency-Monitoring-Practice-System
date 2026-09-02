@@ -541,31 +541,41 @@ const RecordingStudio = () => {
                      </div>
                   )}
 
-                  {status === 'error' && (
-                     <div className="flex-1 flex flex-col items-center justify-center animate-fade-in relative z-10 overflow-y-auto custom-scrollbar p-2 text-center">
-                        <div className="w-12 h-12 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mb-3 shrink-0">
-                           <X size={24} />
+                  {status === 'error' && (() => {
+                     const isVoiceError = analysisError?.toLowerCase().includes('voice') ||
+                                          analysisError?.toLowerCase().includes('microphone') ||
+                                          analysisError?.toLowerCase().includes('no audio') ||
+                                          analysisError?.toLowerCase().includes('too short');
+                     return (
+                        <div className="flex-1 flex flex-col items-center justify-center animate-fade-in relative z-10 overflow-y-auto custom-scrollbar p-2 text-center">
+                           <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 shrink-0 ${isVoiceError ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-500'}`}>
+                              {isVoiceError ? <VolumeX size={28} /> : <X size={24} />}
+                           </div>
+                           <h3 className={`text-[12px] font-black mb-1 uppercase tracking-[0.2em] ${isVoiceError ? 'text-amber-400' : 'text-red-400'}`}>
+                              {isVoiceError ? 'No Recording Detected' : 'Analysis Failed'}
+                           </h3>
+                           <p className="text-[10px] text-slate-400 mb-5 max-w-[230px] mx-auto leading-relaxed">
+                              {analysisError || 'A server error occurred. Please try again later.'}
+                           </p>
+                           <div className="flex flex-col gap-2 w-full max-w-[190px] mx-auto">
+                              <button
+                                 onClick={isVoiceError ? resetRecording : () => startAnalysis(isFreeRecord ? null : activePassage?.id, isFreeRecord ? null : activePassage?.text)}
+                                 className="h-10 bg-teal-500 text-slate-900 rounded-xl font-black text-[11px] tracking-wider uppercase hover:scale-[1.03] active:scale-[0.97] transition-all flex items-center gap-2 justify-center shadow-lg"
+                              >
+                                 {isVoiceError ? <><Mic size={14} /> Record Again</> : <>Try Again <RotateCcw size={14} /></>}
+                              </button>
+                              {!isVoiceError && (
+                                 <button
+                                    onClick={resetRecording}
+                                    className="h-8 border border-slate-700 text-slate-300 rounded-xl font-black text-[9px] tracking-widest uppercase hover:bg-slate-800 transition-all"
+                                 >
+                                    Re-Record
+                                 </button>
+                              )}
+                           </div>
                         </div>
-                        <h3 className="text-[12px] font-black text-red-400 mb-1 uppercase tracking-[0.2em]">Analysis Failed</h3>
-                        <p className="text-[10px] text-slate-400 mb-4 max-w-[220px] mx-auto leading-normal">
-                           {analysisError || "A server error occurred. Please try again later."}
-                        </p>
-                        <div className="flex flex-col gap-2 w-full max-w-[180px] mx-auto">
-                           <button 
-                              onClick={() => startAnalysis(isFreeRecord ? null : activePassage?.id, isFreeRecord ? null : activePassage?.text)} 
-                              className="h-10 bg-teal-500 text-slate-900 rounded-xl font-black text-[11px] tracking-wider uppercase hover:scale-[1.03] active:scale-[0.97] transition-all flex items-center gap-2 justify-center shadow-lg"
-                           >
-                              Try Again <RotateCcw size={14} />
-                           </button>
-                           <button 
-                              onClick={resetRecording} 
-                              className="h-8 border border-slate-700 text-slate-300 rounded-xl font-black text-[9px] tracking-widest uppercase hover:bg-slate-800 transition-all"
-                           >
-                              Re-Record
-                           </button>
-                        </div>
-                     </div>
-                  )}
+                     );
+                  })()}
                </div>
             </div>
 
