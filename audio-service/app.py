@@ -23,6 +23,7 @@ from flask_cors import CORS
 import os
 import sys
 import io
+import uuid
 import traceback
 
 # Force UTF-8 output encoding for Windows command line compatibility
@@ -110,10 +111,13 @@ def analyze():
         passage_id = request.form.get('passageId', None)
         expected_text = request.form.get('expectedText', None)
 
-        # Save the uploaded file temporarily
-        filepath = os.path.join(UPLOAD_FOLDER, audio_file.filename)
+        # Save the uploaded file with a UUID-based name to prevent concurrent-request
+        # file collisions (two simultaneous requests would otherwise overwrite each other).
+        orig_ext = os.path.splitext(audio_file.filename)[1] or '.webm'
+        safe_filename = f"{uuid.uuid4().hex}{orig_ext}"
+        filepath = os.path.join(UPLOAD_FOLDER, safe_filename)
         audio_file.save(filepath)
-        print(f"\n📂 Received audio file: {audio_file.filename}")
+        print(f"\n📂 Received audio file: {audio_file.filename} → saved as {safe_filename}")
         if passage_id:
             print(f"📋 Assessment mode: passage '{passage_id}'")
 

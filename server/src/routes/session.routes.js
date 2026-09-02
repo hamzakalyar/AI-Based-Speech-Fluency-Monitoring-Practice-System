@@ -98,7 +98,7 @@ router.post('/analyze', auth, upload.single('audio'), async (req, res) => {
         },
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
-        timeout: 120000  // 2 minute timeout (Whisper can be slow)
+        timeout: 180000  // 3-minute timeout — matches client timeout in sessionsService.js
       }
     );
 
@@ -198,9 +198,13 @@ router.post('/analyze', auth, upload.single('audio'), async (req, res) => {
   } catch (error) {
     console.error(`\n❌ Analysis error:`, error.message);
 
-    // If we created a session, mark it as failed
-    if (error.sessionId) {
-      await Session.findByIdAndUpdate(error.sessionId, { status: 'failed' });
+    // If we created a session before the error, mark it as failed so it doesn't
+    // linger as 'processing' forever in MongoDB.
+    if (session?._id) {
+      try {
+        await Session.findByIdAndUpdate(session._id, { status: 'failed' });
+        console.warn(`⚠️  Marked session ${session._id} as 'failed' after error`);
+      } catch (_) { /* best-effort */ }
     }
 
     // Check if it's a Python service connection error

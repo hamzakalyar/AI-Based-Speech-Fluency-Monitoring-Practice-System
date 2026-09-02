@@ -15,7 +15,9 @@ export const sessionsService = {
 
   analyzeSession: (audioBlob, passageId = null, expectedText = null) => {
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'session.wav');
+    // Use .webm extension to match the actual audio/webm;codecs=opus content recorded by MediaRecorder
+    const ext = audioBlob.type?.includes('ogg') ? 'ogg' : audioBlob.type?.includes('mp4') ? 'mp4' : 'webm';
+    formData.append('audio', audioBlob, `session.${ext}`);
     if (passageId) formData.append('passageId', passageId);
     if (expectedText) formData.append('expectedText', expectedText);
 
